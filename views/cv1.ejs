@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resume Template</title>
+  <link rel="stylesheet" href="/c1.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <section class="first">
+    <h1><%= user.name %></h1>
+    <div><%= user.email %></div>
+  </section>
+
+  <section id="section1">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox1" checked />
+        <span>Summary</span>
+      </div>
+    </h3>
+    <p><%= user.summary %></p>
+  </section>
+
+  <section id="section2">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox2" checked />
+        <span>Experience</span>
+      </div>
+    </h3>
+    <h4><%= user.experience?.company %></h4>
+    <div class="two-column">
+      <p><%= user.experience?.location %></p>
+      <p><%= user.experience?.period %></p>
+    </div>
+    <ul>
+      <li><%= user.experience?.description %></li>
+    </ul>
+  </section>
+
+  <section id="section3">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox3" checked />
+        <span>Education</span>
+      </div>
+    </h3>
+    <% if (Array.isArray(user.education)) { %>
+      <% for (let edu of user.education) { %>
+        <p><b><%= edu.school %></b></p>
+        <p><%= edu.degree %></p>
+        <p><%= edu.period %></p>
+      <% } %>
+    <% } %>
+  </section>
+
+  <section id="section4">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox4" checked />
+        <span>Key Achievements</span>
+      </div>
+    </h3>
+    <p><%= user.achievement?.name %></p>
+    <p><%= user.achievement?.description %></p>
+  </section>
+
+  <section id="section5">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox5" checked />
+        <span>Skills</span>
+      </div>
+    </h3>
+    <p><%= user.skills %></p>
+  </section>
+
+  <section id="section6">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox6" checked />
+        <span>Certification</span>
+      </div>
+    </h3>
+    <p><%= user.certification %></p>
+  </section>
+
+  <section id="section7">
+    <h3>
+      <div class="heading-wrapper">
+        <input type="checkbox" id="checkbox7" checked />
+        <span>Projects</span>
+      </div>
+    </h3>
+    <p><%= user.project?.name %></p>
+    <div class="two-column">
+      <p><%= user.project?.location %></p>
+      <p><%= user.project?.period %></p>
+    </div>
+  </section>
+
+  <% if (Array.isArray(user.new) && user.new.length > 0) { 
+       let i = 8;
+  %>
+    <% for(let newUser of user.new) { %>
+      <section id="section<%= i %>">
+        <h3>
+          <div class="heading-wrapper">
+            <input type="checkbox" id="checkbox<%= i %>" checked />
+            <span><%= newUser.heading %></span>
+          </div>
+        </h3>
+        <p><%= newUser.text %></p>
+      </section>
+      <% i++; %>
+    <% } %>
+  <% } %>
+
+  <button id="disappear">See only selected items</button>
+  <button id="downloadPdf" style="display: none;">Download PDF</button>
+  <button>
+    <a href="/Cv2/new" style="text-decoration: none; color: white;">Want to try Two-column</a>
+  </button>
+
+  <script>
+    const sections = [
+      { checkboxId: "checkbox1", sectionId: "section1" },
+      { checkboxId: "checkbox2", sectionId: "section2" },
+      { checkboxId: "checkbox3", sectionId: "section3" },
+      { checkboxId: "checkbox4", sectionId: "section4" },
+      { checkboxId: "checkbox5", sectionId: "section5" },
+      { checkboxId: "checkbox6", sectionId: "section6" },
+      { checkboxId: "checkbox7", sectionId: "section7" },
+      { checkboxId: "checkbox8", sectionId: "section8" },
+      { checkboxId: "checkbox9", sectionId: "section9" },
+      { checkboxId: "checkbox10", sectionId: "section10" },
+    ];
+
+    const disappearButton = document.getElementById("disappear");
+    const downloadButton = document.getElementById("downloadPdf");
+
+    disappearButton.addEventListener("click", () => {
+      sections.forEach(({ checkboxId, sectionId }) => {
+        const checkbox = document.getElementById(checkboxId);
+        const section = document.getElementById(sectionId);
+
+        if (checkbox && section) {
+          section.style.display = checkbox.checked ? "block" : "none";
+          checkbox.style.display = "none";
+        }
+      });
+
+      disappearButton.style.display = "none";
+      downloadButton.style.display = "inline-block";
+    });
+
+    downloadButton.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let yOffset = 10;
+      sections.forEach(({ sectionId }) => {
+        const section = document.getElementById(sectionId);
+        if (section && section.style.display === "block") {
+          doc.text(section.textContent.trim(), 10, yOffset);
+          yOffset += 10 + doc.getTextDimensions(section.textContent).h;
+        }
+      });
+
+      doc.save("resume.pdf");
+    });
+  </script>
+</body>
+</html>
